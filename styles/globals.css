@@ -1,0 +1,30 @@
+:root {
+  --pixel-size: 8px;
+
+  --primary-background: #faf8ef;
+  --primary-text-color: #776e65;
+  --secondary-background: #bbada0;
+  --cell-background: #cac1b5;
+  --tile-background: #eee4da;
+  /* --primary-text-color:#776e65; */
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  background: var(--primary-background);
+  color: var(--primary-text-color);
+  font-size: calc(var(--pixel-size) * 2.25);
+  line-height: calc(var(--pixel-size) * 3.5);
+}
