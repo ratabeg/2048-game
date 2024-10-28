@@ -4,12 +4,18 @@ import { render, screen } from "@testing-library/react";
 
 describe("Board", () => {
   it("should render board with 16 cells", () => {
-    const {container} = render(<Board />);
-    
+    const { container } = render(<Board />);
+
     const cellElements = container.querySelectorAll(".cell");
 
     expect(cellElements.length).toEqual(16);
+  });
 
-    
+  it("should render board with 2 tiles", () => {
+    const { container } = render(<Board />);
+
+    const tiles = container.querySelectorAll(".tile");
+
+    expect(tiles.length).toEqual(2);
   });
 });
