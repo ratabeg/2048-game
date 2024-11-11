@@ -52,7 +52,7 @@ describe("gameReducer", () => {
         expect(typeof stateBefore.board[1][0]).toBe("string")
         expect(typeof stateBefore.board[3][1]).toBe("string")
 
-        console.log("StateBefore:",stateBefore)
+        // console.log("StateBefore:",stateBefore)
 
         act(()=>{
           dispatch({type:"move_up"});
@@ -65,8 +65,141 @@ describe("gameReducer", () => {
         expect(isNil(stateAfter.board[1][0])).toBeTruthy();
         expect(isNil(stateAfter.board[3][1])).toBeTruthy();
 
-        console.log("StateAfter:",stateAfter)
+        // console.log("StateAfter:",stateAfter)
       })
     });
+
+
+    describe("Move down",()=>{
+      it("should move tiles to the bottom of the board",()=>{
+        const tile1: Tile = {
+          position: [0, 1],
+          value: 2,
+        }; 
+        
+        const tile2: Tile = {
+          position: [1, 3],
+          value: 2,
+        };
+  
+        const { result } = renderHook(() =>
+          useReducer(gameReducer, initialState),
+        );
+        const [, dispatch] = result.current;
+        act(() => {
+          dispatch({ type: "create_tile", tile:tile1 })
+          dispatch({ type: "create_tile", tile:tile2 })
+
+        });
+        const [stateBefore] = result.current;
+
+        expect(isNil(stateBefore.board[0][0])).toBeTruthy();
+        expect(typeof stateBefore.board[1][0]).toBe("string")
+        expect(typeof stateBefore.board[3][1]).toBe("string")
+
+
+        act(()=>{
+          dispatch({type:"move_down"});
+        });
+
+        const [stateAfter] = result.current;
+
+        expect(typeof stateAfter.board[3][0]).toBe("string")
+        expect(typeof stateAfter.board[3][1]).toBe("string")
+        expect(isNil(stateAfter.board[1][0])).toBeTruthy();
+
+      })
+    });
+
+    describe("Move Left",()=>{
+      it("should move tiles to the left of the board",()=>{
+        const tile1: Tile = {
+          position: [0, 1],
+          value: 2,
+        }; 
+        
+        const tile2: Tile = {
+          position: [1, 3],
+          value: 2,
+        };
+  
+        const { result } = renderHook(() =>
+          useReducer(gameReducer, initialState),
+        );
+        const [, dispatch] = result.current;
+        act(() => {
+          dispatch({ type: "create_tile", tile:tile1 })
+          dispatch({ type: "create_tile", tile:tile2 })
+
+        });
+        const [stateBefore] = result.current;
+
+        expect(isNil(stateBefore.board[3][0])).toBeTruthy();
+        expect(typeof stateBefore.board[1][0]).toBe("string")
+        expect(typeof stateBefore.board[3][1]).toBe("string")
+
+        // console.log("StateBefore:",stateBefore)
+
+        act(()=>{
+          dispatch({type:"move_left"});
+        });
+
+        const [stateAfter] = result.current;
+
+        expect(typeof stateAfter.board[1][0]).toBe("string")
+        expect(typeof stateAfter.board[3][0]).toBe("string")
+        expect(isNil(stateAfter.board[3][1])).toBeTruthy();
+
+        // console.log("StateAfter:",stateAfter)
+      })
+    });
+
+
+    describe("Move Right",()=>{
+      it("should move tiles to the left of the board",()=>{
+        const tile1: Tile = {
+          position: [0, 1],
+          value: 2,
+        }; 
+        
+        const tile2: Tile = {
+          position: [1, 3],
+          value: 2,
+        };
+  
+        const { result } = renderHook(() =>
+          useReducer(gameReducer, initialState),
+        );
+        const [, dispatch] = result.current;
+        act(() => {
+          dispatch({ type: "create_tile", tile:tile1 })
+          dispatch({ type: "create_tile", tile:tile2 })
+
+        });
+        const [stateBefore] = result.current;
+
+        expect(isNil(stateBefore.board[1][3])).toBeTruthy();
+        expect(isNil(stateBefore.board[3][3])).toBeTruthy();
+        expect(typeof stateBefore.board[1][0]).toBe("string")
+        expect(typeof stateBefore.board[3][1]).toBe("string")
+
+        // console.log("StateBefore:",stateBefore)
+
+        act(()=>{
+          dispatch({type:"move_right"});
+        });
+
+        const [stateAfter] = result.current;
+
+        expect(typeof stateAfter.board[1][3]).toBe("string")
+        expect(typeof stateAfter.board[3][3]).toBe("string")
+        expect(isNil(stateAfter.board[1][0])).toBeTruthy();
+        expect(isNil(stateAfter.board[3][1])).toBeTruthy();
+
+
+        // console.log("StateAfter:",stateAfter)
+      })
+    });
+
   });
 });
