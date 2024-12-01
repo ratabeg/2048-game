@@ -13,7 +13,7 @@ const Tile = ({ position, value }: TileProps) => {
   };
   return (
     <div className={styles.tile} style={style}>
-      2
+      {value}
     </div>
   );
 };
