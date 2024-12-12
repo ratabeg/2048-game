@@ -1,33 +1,38 @@
 import styles from "@/styles/board.module.css";
 import Tile from "./tile";
-import { useEffect, useReducer, useRef } from "react";
+import { useCallback, useContext, useEffect, useReducer, useRef } from "react";
 import gameReducer, { initialState } from "@/reducers/game-reducer";
 import { Tile as TileModel } from "@/models/tile";
+import { mergeAnimationDuration } from "@/constants";
+import { GameContext,dispatch,gameState } from "@/context/game-context";
 
 const Board = () => {
-  const [gameState, dispatch] = useReducer(gameReducer, initialState);
+  const {appendRandomTile,dispatch,gameState} = useContext(GameContext);
+  // const [gameState, dispatch] = useReducer(gameReducer, initialState);
   const initilized = useRef(false);
 
-  const handleKeyDown = (e:KeyboardEvent)=>{
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
     e.preventDefault();
 
-    switch(e.key){
+    switch (e.key) {
       case "ArrowUp":
-        dispatch({type:"move_up"});
+        dispatch({ type: "move_up" });
         break;
-        case "ArrowDown":
-          dispatch({type:"move_down"});
-          break;
-        case "ArrowLeft":
-          dispatch({type:"move_left"});
-          break;
-        case "ArrowRight":
-          dispatch({type:"move_right"});
-          break;
+      case "ArrowDown":
+        dispatch({ type: "move_down" });
+        break;
+      case "ArrowLeft":
+        dispatch({ type: "move_left" });
+        break;
+      case "ArrowRight":
+        dispatch({ type: "move_right" });
+        break;
     }
 
-    dispatch({type:"clean_up"});
-  }
+    setTimeout(() => {dispatch({ type: "clean_up" })
+    appendRandomTile()
+    }, mergeAnimationDuration);
+  },[appendRandomTile,dispatch]);
 
   const renderGrid = () => {
     const cells: JSX.Element[] = [];
@@ -54,16 +59,15 @@ const Board = () => {
       dispatch({ type: "create_tile", tile: { position: [0, 2], value: 2 } });
       initilized.current = true;
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
-    window.addEventListener("keydown",handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
-    return ()=>{
-      window.removeEventListener("keydown",handleKeyDown);
-    }
-  }, []);
-
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   return (
     <div className={styles.board}>
