@@ -2,12 +2,13 @@ import Board from "@/components/board";
 import { tileCountPerDimention } from "@/constants";
 import { Tile, TileMap } from "@/models/tile";
 import { stat } from "fs";
-import { flattenDeep, isNil } from "lodash";
+import { flattenDeep, isEqual, isNil } from "lodash";
 import { uid } from "uid";
 
 type State = {
   board: string[][];
   tiles: TileMap;
+  hasChanged: boolean;
 };
 type Action =
   | {
@@ -42,6 +43,7 @@ function createBoard() {
 export const initialState: State = {
   board: createBoard(),
   tiles: {},
+  hasChanged: false,
 };
 
 export default function gameReducer(
@@ -67,6 +69,7 @@ export default function gameReducer(
       return {
         ...state,
         tiles: newTiles,
+        hasChanged: false,
       };
     }
 
@@ -85,6 +88,7 @@ export default function gameReducer(
     case "move_up": {
       const newBoard = createBoard();
       const newTiles: TileMap = {};
+      let hasChanged = false;
 
       for (let x = 0; x < tileCountPerDimention; x++) {
         let newY = 0;
@@ -104,6 +108,7 @@ export default function gameReducer(
                 position: [x, newY - 1],
               };
               previousTile = undefined;
+              hasChanged = true;
               continue;
             }
 
@@ -113,6 +118,10 @@ export default function gameReducer(
               position: [x, newY],
             };
             previousTile = newTiles[tileID];
+
+            if (!isEqual(currentTile.position, [x, newY])) {
+              hasChanged = true;
+            }
             newY++;
           }
         }
@@ -122,12 +131,14 @@ export default function gameReducer(
         ...state,
         board: newBoard,
         tiles: newTiles,
+        hasChanged: hasChanged,
       };
     }
 
     case "move_down": {
       const newBoard = createBoard();
       const newTiles: TileMap = {};
+      let hasChanged = false;
 
       for (let x = 0; x < tileCountPerDimention; x++) {
         let newY = tileCountPerDimention - 1;
@@ -148,6 +159,7 @@ export default function gameReducer(
                 position: [x, newY + 1],
               };
               previousTile = undefined;
+              hasChanged = true;
               continue;
             }
 
@@ -157,6 +169,11 @@ export default function gameReducer(
               position: [x, newY],
             };
             previousTile = newTiles[tileID];
+
+            if (!isEqual(currentTile.position, [x, newY])) {
+              hasChanged = true;
+            }
+
             newY--;
           }
         }
@@ -166,12 +183,14 @@ export default function gameReducer(
         ...state,
         board: newBoard,
         tiles: newTiles,
+        hasChanged: hasChanged,
       };
     }
 
     case "move_left": {
       const newBoard = createBoard();
       const newTiles: TileMap = {};
+      let hasChanged = false;
 
       for (let y = 0; y < tileCountPerDimention; y++) {
         let newX = 0;
@@ -192,6 +211,7 @@ export default function gameReducer(
                 position: [newX - 1, y],
               };
               previousTile = undefined;
+              hasChanged = true;
               continue;
             }
 
@@ -201,6 +221,10 @@ export default function gameReducer(
               position: [newX, y],
             };
             previousTile = newTiles[tileID];
+
+            if (!isEqual(currentTile.position, [newX, y])) {
+              hasChanged = true;
+            }
             newX++;
           }
         }
@@ -210,12 +234,14 @@ export default function gameReducer(
         ...state,
         board: newBoard,
         tiles: newTiles,
+        hasChanged: hasChanged,
       };
     }
 
     case "move_right": {
       const newBoard = createBoard();
       const newTiles: TileMap = {};
+      let hasChanged = false;
 
       for (let y = 0; y < tileCountPerDimention; y++) {
         let newX = tileCountPerDimention - 1;
@@ -236,6 +262,7 @@ export default function gameReducer(
                 position: [newX + 1, y],
               };
               previousTile = undefined;
+              hasChanged = true;
               continue;
             }
 
@@ -245,6 +272,11 @@ export default function gameReducer(
               position: [newX, y],
             };
             previousTile = newTiles[tileID];
+
+            if (!isEqual(currentTile.position, [newX, y])) {
+              hasChanged = true;
+            }
+
             newX--;
           }
         }
@@ -254,6 +286,7 @@ export default function gameReducer(
         ...state,
         board: newBoard,
         tiles: newTiles,
+        hasChanged:hasChanged,
       };
     }
 

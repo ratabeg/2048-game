@@ -4,35 +4,38 @@ import { useCallback, useContext, useEffect, useReducer, useRef } from "react";
 import gameReducer, { initialState } from "@/reducers/game-reducer";
 import { Tile as TileModel } from "@/models/tile";
 import { mergeAnimationDuration } from "@/constants";
-import { GameContext,dispatch,gameState } from "@/context/game-context";
+import { GameContext, dispatch, gameState } from "@/context/game-context";
 
 const Board = () => {
-  const {appendRandomTile,dispatch,gameState} = useContext(GameContext);
+  const { appendRandomTile, dispatch, gameState } = useContext(GameContext);
   // const [gameState, dispatch] = useReducer(gameReducer, initialState);
   const initilized = useRef(false);
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    e.preventDefault();
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      e.preventDefault();
 
-    switch (e.key) {
-      case "ArrowUp":
-        dispatch({ type: "move_up" });
-        break;
-      case "ArrowDown":
-        dispatch({ type: "move_down" });
-        break;
-      case "ArrowLeft":
-        dispatch({ type: "move_left" });
-        break;
-      case "ArrowRight":
-        dispatch({ type: "move_right" });
-        break;
-    }
+      switch (e.key) {
+        case "ArrowUp":
+          dispatch({ type: "move_up" });
+          break;
+        case "ArrowDown":
+          dispatch({ type: "move_down" });
+          break;
+        case "ArrowLeft":
+          dispatch({ type: "move_left" });
+          break;
+        case "ArrowRight":
+          dispatch({ type: "move_right" });
+          break;
+      }
 
-    setTimeout(() => {dispatch({ type: "clean_up" })
-    appendRandomTile()
-    }, mergeAnimationDuration);
-  },[appendRandomTile,dispatch]);
+      // setTimeout(() => {dispatch({ type: "clean_up" })
+      // appendRandomTile()
+      // }, mergeAnimationDuration);
+    },
+    [dispatch],
+  );
 
   const renderGrid = () => {
     const cells: JSX.Element[] = [];

@@ -32,7 +32,7 @@ const Tile = ({ position, value }: TileProps) => {
     zIndex: value,
   };
   return (
-    <div className={styles.tile} style={style}>
+    <div className={`${styles.tile} ${styles[`tile${value}`]}`} style={style}>
       {value}
     </div>
   );
