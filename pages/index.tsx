@@ -6,7 +6,10 @@ import { GameContext } from "@/context/game-context";
 import { useContext } from "react";
 
 export default function Home() {
-  const { undo,stepBack } = useContext(GameContext);
+
+  // const { StepBack, stepBack } = useContext(GameContext);
+    const { StepBack, stepBack } = useContext(GameContext);
+
 
 
   return (
@@ -25,7 +28,7 @@ export default function Home() {
         <Board />
       </main>
       <header>
-      {stepBack? <button className={styles.undoBtn} onClick={undo}>Step back</button>: ""}
+      {stepBack? <button className={styles.undoBtn} onClick={StepBack}>Step back</button>: ""}
       </header>
       <footer>Made with ❤️ by Raouf</footer>
     </div>

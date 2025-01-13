@@ -1,8 +1,9 @@
-import Board from "@/components/board";
+// import Board from "@/components/board";
 import { tileCountPerDimention } from "@/constants";
 import { Tile, TileMap } from "@/models/tile";
-import { stat } from "fs";
-import { debounce, flattenDeep, isEqual, isNil, throttle } from "lodash";
+// import { stat } from "fs";
+// import { debounce, flattenDeep, isEqual, isNil, throttle } from "lodash";
+import {  flattenDeep, isEqual, isNil } from "lodash";
 import { uid } from "uid";
 
 
@@ -12,8 +13,9 @@ type State = {
   tilesByIds: string[];
   hasChanged: boolean;
   score: number;
-  previousState: State | undefined; // Add this to store the previous state
+  previousState?: State; // Add this to store the previous state
 };
+
 type Action =
   | {
       type: "create_tile";
@@ -53,7 +55,7 @@ export const initialState: State = {
   tilesByIds: [],
   hasChanged: false,
   score: 0,
-  previousState:undefined,
+  previousState: undefined,
 };
 
 export default function gameReducer(

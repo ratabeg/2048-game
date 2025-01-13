@@ -1,10 +1,13 @@
 import styles from "@/styles/board.module.css";
 import Tile from "./tile";
-import { useCallback, useContext, useEffect, useReducer, useRef } from "react";
-import gameReducer, { initialState } from "@/reducers/game-reducer";
+// import { useCallback, useContext, useEffect, useReducer, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
+// import gameReducer, { initialState } from "@/reducers/game-reducer";
 import { Tile as TileModel } from "@/models/tile";
-import { mergeAnimationDuration } from "@/constants";
-import { GameContext, dispatch, gameState } from "@/context/game-context";
+// import { mergeAnimationDuration } from "@/constants";
+// import { GameContext, dispatch, gameState } from "@/context/game-context";
+import dispatch,{ GameContext } from "@/context/game-context";
+
 
 const Board = () => {
   const { moveTiles, getTiles,startGame } = useContext(GameContext);

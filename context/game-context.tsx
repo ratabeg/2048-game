@@ -14,7 +14,8 @@ export const GameContext = createContext({
   moveTiles: (_: MoveDirection) => {},
   startGame:()=>{},
   score: 0,
-  stepBack:undefined
+  stepBack: initialState.previousState,
+  StepBack: () => {}, // Add undo to the type definition
 });
 
 export default function GameProvider({ children }: PropsWithChildren) {
@@ -73,14 +74,15 @@ export default function GameProvider({ children }: PropsWithChildren) {
     dispatch({ type: "create_tile", tile: { position: [0, 2], value: 2 } });
   };
 
-  const undo = ()=>{
+  const StepBack = () =>{
     dispatch({ type: "undo"})
   }
 
 
+  //@ts-nocheck
   return (
     <GameContext.Provider
-      value={{ appendRandomTile, getTiles,startGame,moveTiles, stepBack:gameState.previousState,undo, score: gameState.score}}
+      value={{ gameState,appendRandomTile, getTiles,startGame,moveTiles,StepBack, score: gameState.score,stepBack:gameState.previousState}}
     >
       {children}
     </GameContext.Provider>

@@ -6,7 +6,7 @@ import {
 import usePreviousProps from "@/hooks/use-previous-props";
 import { Tile as TileProps } from "@/models/tile";
 import styles from "@/styles/tile.module.css";
-import { transform } from "lodash";
+// import { transform } from "lodash";
 import { useEffect, useState } from "react";
 
 const Tile = ({ position, value }: TileProps) => {
