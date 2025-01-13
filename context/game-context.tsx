@@ -1,17 +1,24 @@
 import { mergeAnimationDuration, tileCountPerDimention } from "@/constants";
 import gameReducer, { initialState } from "@/reducers/game-reducer";
-import { isNil } from "lodash";
-import { createContext, PropsWithChildren, useEffect, useReducer } from "react";
+import { isNil, throttle } from "lodash";
+import { createContext, PropsWithChildren, useCallback, useEffect, useReducer } from "react";
+import { Tile } from "@/models/tile";
+
+type MoveDirection = "move_up" | "move_down" | "move_left" | "move_right";
 
 export const GameContext = createContext({
   appendRandomTile: () => {},
   gameState: initialState,
-  dispatch: (_: any) => {},
+  getTiles: () => [] as Tile[],
+  // dispatch: (_: any) => {},
+  moveTiles: (_: MoveDirection) => {},
+  startGame:()=>{},
+  score: 0,
+  stepBack:undefined
 });
 
 export default function GameProvider({ children }: PropsWithChildren) {
   const [gameState, dispatch] = useReducer(gameReducer, initialState);
-
   const getEmptyCells = () => {
     const results: [number, number][] = [];
 
@@ -45,8 +52,36 @@ export default function GameProvider({ children }: PropsWithChildren) {
       dispatch({ type: "create_tile", tile: newTile });
     }
   };
+
+  const getTiles = () => {
+    return gameState.tilesByIds.map((tileId) => gameState.tiles[tileId]);
+  };
+
+  const moveTiles = useCallback(
+    throttle(
+      (type: MoveDirection) => dispatch({ type }),
+      mergeAnimationDuration * 1.05,
+      { trailing: false },
+    ),
+    [dispatch],
+  );
+
+
+  const startGame = () => {
+    // dispatch({ type: "reset_game" });
+    dispatch({ type: "create_tile", tile: { position: [0, 1], value: 2 } });
+    dispatch({ type: "create_tile", tile: { position: [0, 2], value: 2 } });
+  };
+
+  const undo = ()=>{
+    dispatch({ type: "undo"})
+  }
+
+
   return (
-    <GameContext.Provider value={{ appendRandomTile, gameState, dispatch }}>
+    <GameContext.Provider
+      value={{ appendRandomTile, getTiles,startGame,moveTiles, stepBack:gameState.previousState,undo, score: gameState.score}}
+    >
       {children}
     </GameContext.Provider>
   );

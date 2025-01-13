@@ -2,13 +2,17 @@ import Board from "@/components/board";
 import { tileCountPerDimention } from "@/constants";
 import { Tile, TileMap } from "@/models/tile";
 import { stat } from "fs";
-import { flattenDeep, isEqual, isNil } from "lodash";
+import { debounce, flattenDeep, isEqual, isNil, throttle } from "lodash";
 import { uid } from "uid";
+
 
 type State = {
   board: string[][];
   tiles: TileMap;
+  tilesByIds: string[];
   hasChanged: boolean;
+  score: number;
+  previousState: State | undefined; // Add this to store the previous state
 };
 type Action =
   | {
@@ -29,6 +33,9 @@ type Action =
     }
   | {
       type: "clean_up";
+    }
+    | {
+      type: "undo";
     };
 
 function createBoard() {
@@ -43,24 +50,28 @@ function createBoard() {
 export const initialState: State = {
   board: createBoard(),
   tiles: {},
+  tilesByIds: [],
   hasChanged: false,
+  score: 0,
+  previousState:undefined,
 };
 
 export default function gameReducer(
   state: State = initialState,
   action: Action,
 ) {
+
   switch (action.type) {
     case "clean_up": {
       const flattenBoard = flattenDeep(state.board);
       const newTiles: TileMap = flattenBoard.reduce(
-        (result, tileId: string) => {
-          if (isNil(tileId)) {
+        (result, tileID: string) => {
+          if (isNil(tileID)) {
             return result;
           }
           return {
             ...result,
-            [tileId]: state.tiles[tileId],
+            [tileID]: state.tiles[tileID],
           };
         },
         {},
@@ -69,7 +80,9 @@ export default function gameReducer(
       return {
         ...state,
         tiles: newTiles,
+        tilesByIds: Object.keys(newTiles),
         hasChanged: false,
+        
       };
     }
 
@@ -83,27 +96,31 @@ export default function gameReducer(
         ...state,
         board: newBoard,
         tiles: { ...state.tiles, [tileID]: { id: tileID, ...action.tile } },
+        tilesByIds: [...state.tilesByIds, tileID],
       };
     }
     case "move_up": {
       const newBoard = createBoard();
       const newTiles: TileMap = {};
       let hasChanged = false;
+      let { score } = state;
 
       for (let x = 0; x < tileCountPerDimention; x++) {
         let newY = 0;
         let previousTile: Tile | undefined;
-        for (let y = 0; y < tileCountPerDimention; y++) {
-          const tileID = state.board[y][x];
-          const currentTile = state.tiles[tileID];
 
-          if (!isNil(tileID)) {
+        for (let y = 0; y < tileCountPerDimention; y++) {
+          const tileId = state.board[y][x];
+          const currentTile = state.tiles[tileId];
+
+          if (!isNil(tileId)) {
             if (previousTile?.value === currentTile.value) {
+              score += previousTile.value * 2;
               newTiles[previousTile.id as string] = {
                 ...previousTile,
                 value: previousTile.value * 2,
               };
-              newTiles[tileID] = {
+              newTiles[tileId] = {
                 ...currentTile,
                 position: [x, newY - 1],
               };
@@ -112,13 +129,12 @@ export default function gameReducer(
               continue;
             }
 
-            newBoard[newY][x] = tileID;
-            newTiles[tileID] = {
+            newBoard[newY][x] = tileId;
+            newTiles[tileId] = {
               ...currentTile,
               position: [x, newY],
             };
-            previousTile = newTiles[tileID];
-
+            previousTile = newTiles[tileId];
             if (!isEqual(currentTile.position, [x, newY])) {
               hasChanged = true;
             }
@@ -126,15 +142,15 @@ export default function gameReducer(
           }
         }
       }
-
       return {
         ...state,
         board: newBoard,
         tiles: newTiles,
-        hasChanged: hasChanged,
+        hasChanged,
+        score,
+        previousState: { ...state }, // Save the current state before changes
       };
     }
-
     case "move_down": {
       const newBoard = createBoard();
       const newTiles: TileMap = {};
@@ -144,17 +160,18 @@ export default function gameReducer(
         let newY = tileCountPerDimention - 1;
         let previousTile: Tile | undefined;
 
-        for (let y = 0; y < tileCountPerDimention; y++) {
-          const tileID = state.board[y][x];
-          const currentTile = state.tiles[tileID];
+        for (let y = tileCountPerDimention - 1; y >= 0; y--) {
+          const tileId = state.board[y][x];
+          const currentTile = state.tiles[tileId];
 
-          if (!isNil(tileID)) {
+          if (!isNil(tileId)) {
             if (previousTile?.value === currentTile.value) {
+              // score += previousTile.value * 2;
               newTiles[previousTile.id as string] = {
                 ...previousTile,
                 value: previousTile.value * 2,
               };
-              newTiles[tileID] = {
+              newTiles[tileId] = {
                 ...currentTile,
                 position: [x, newY + 1],
               };
@@ -163,27 +180,25 @@ export default function gameReducer(
               continue;
             }
 
-            newBoard[newY][x] = tileID;
-            newTiles[tileID] = {
+            newBoard[newY][x] = tileId;
+            newTiles[tileId] = {
               ...currentTile,
               position: [x, newY],
             };
-            previousTile = newTiles[tileID];
-
+            previousTile = newTiles[tileId];
             if (!isEqual(currentTile.position, [x, newY])) {
               hasChanged = true;
             }
-
             newY--;
           }
         }
       }
-
       return {
         ...state,
         board: newBoard,
         tiles: newTiles,
-        hasChanged: hasChanged,
+        hasChanged,
+        previousState: { ...state }, // Save the current state before changes
       };
     }
 
@@ -235,29 +250,34 @@ export default function gameReducer(
         board: newBoard,
         tiles: newTiles,
         hasChanged: hasChanged,
+        previousState: { ...state }, // Save the current state before changes
       };
     }
 
     case "move_right": {
+
+      
       const newBoard = createBoard();
       const newTiles: TileMap = {};
       let hasChanged = false;
-
+      let { score } = state;
+      
       for (let y = 0; y < tileCountPerDimention; y++) {
         let newX = tileCountPerDimention - 1;
         let previousTile: Tile | undefined;
 
-        for (let x = 0; x < tileCountPerDimention; x++) {
-          const tileID = state.board[y][x];
-          const currentTile = state.tiles[tileID];
+        for (let x = tileCountPerDimention - 1; x >= 0; x--) {
+          const tileId = state.board[y][x];
+          const currentTile = state.tiles[tileId];
 
-          if (!isNil(tileID)) {
+          if (!isNil(tileId)) {
             if (previousTile?.value === currentTile.value) {
+              score += previousTile.value * 2;
               newTiles[previousTile.id as string] = {
                 ...previousTile,
                 value: previousTile.value * 2,
               };
-              newTiles[tileID] = {
+              newTiles[tileId] = {
                 ...currentTile,
                 position: [newX + 1, y],
               };
@@ -266,28 +286,43 @@ export default function gameReducer(
               continue;
             }
 
-            newBoard[y][newX] = tileID;
-            newTiles[tileID] = {
-              ...currentTile,
+            newBoard[y][newX] = tileId;
+            newTiles[tileId] = {
+              ...state.tiles[tileId],
               position: [newX, y],
             };
-            previousTile = newTiles[tileID];
-
+            previousTile = newTiles[tileId];
             if (!isEqual(currentTile.position, [newX, y])) {
               hasChanged = true;
             }
-
             newX--;
           }
         }
       }
-
       return {
         ...state,
         board: newBoard,
         tiles: newTiles,
-        hasChanged:hasChanged,
+        hasChanged,
+        previousState: { ...state }, // Save the current state before changes
+        score,
       };
+    }
+
+    case "undo":{
+      if(state.previousState){
+        return{
+          ...state.previousState
+        }
+      }
+      // if (state.previousState) {
+      //   return {
+      //     ...state.previousState, // Restore the previous state
+      //     previousState: undefined, // Clear the previous state after undoing
+      //   };
+      // }
+      // return state; // If no previous state, return the current state
+    
     }
 
     default:

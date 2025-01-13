@@ -20,3 +20,24 @@
   font-weight: 600;
   text-align: center;
 }
+
+
+.undoBtn{
+ 
+  /* background-color: orange; */
+  background-color: var(--primary-text-color);
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  /* display: inline-block; */
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px; 
+}
+
+.undoBtn:hover {
+  background-color: var(--secondary-background);
+}

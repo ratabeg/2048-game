@@ -1,9 +1,14 @@
 import Board from "@/components/board";
 import Head from "next/head";
-import styles from "@/styles/index.module.css"
+import styles from "@/styles/index.module.css";
 import Score from "@/components/score";
+import { GameContext } from "@/context/game-context";
+import { useContext } from "react";
 
 export default function Home() {
+  const { undo,stepBack } = useContext(GameContext);
+
+
   return (
     <div className={styles.twenty48}>
       <Head>
@@ -14,11 +19,14 @@ export default function Home() {
       </Head>
       <header>
         <h1>2048</h1>
-        <Score/>
+        <Score />
       </header>
       <main>
         <Board />
       </main>
+      <header>
+      {stepBack? <button className={styles.undoBtn} onClick={undo}>Step back</button>: ""}
+      </header>
       <footer>Made with ❤️ by Raouf</footer>
     </div>
   );
