@@ -13,6 +13,7 @@ export const GameContext = createContext({
   // dispatch: (_: any) => {},
   moveTiles: (_: MoveDirection) => {},
   startGame:()=>{},
+  status:"ongoing",
   score: 0,
   stepBack: initialState.previousState,
   StepBack: () => {}, // Add undo to the type definition
@@ -38,6 +39,7 @@ export default function GameProvider({ children }: PropsWithChildren) {
       setTimeout(() => {
         dispatch({ type: "clean_up" });
         appendRandomTile();
+        checkGameState();
       }, mergeAnimationDuration);
     }
   }, [gameState.hasChanged]);
@@ -79,10 +81,17 @@ export default function GameProvider({ children }: PropsWithChildren) {
   }
 
 
+  const checkGameState = ()=>{
+    const isWin = Object.values(gameState.tiles).filter((t)=>(t.value === 2048)).length > 0
+    if(isWin){
+      dispatch({type:"update_status",status:"won"})
+    }
+  }
+
   //@ts-nocheck
   return (
     <GameContext.Provider
-      value={{ gameState,appendRandomTile, getTiles,startGame,moveTiles,StepBack, score: gameState.score,stepBack:gameState.previousState}}
+      value={{ gameState,appendRandomTile, getTiles,startGame,moveTiles,StepBack, score: gameState.score,stepBack:gameState.previousState,status:gameState.status}}
     >
       {children}
     </GameContext.Provider>

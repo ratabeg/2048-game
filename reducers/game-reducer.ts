@@ -7,6 +7,8 @@ import {  flattenDeep, isEqual, isNil } from "lodash";
 import { uid } from "uid";
 
 
+type GameStatus = "ongoing"| "won"
+
 type State = {
   board: string[][];
   tiles: TileMap;
@@ -14,6 +16,7 @@ type State = {
   hasChanged: boolean;
   score: number;
   previousState?: State; // Add this to store the previous state
+  status:GameStatus,
 };
 
 type Action =
@@ -38,6 +41,9 @@ type Action =
     }
     | {
       type: "undo";
+    }
+    |{
+      type:"update_status",status:GameStatus
     };
 
 function createBoard() {
@@ -56,6 +62,7 @@ export const initialState: State = {
   hasChanged: false,
   score: 0,
   previousState: undefined,
+  status:"ongoing"
 };
 
 export default function gameReducer(
@@ -64,6 +71,12 @@ export default function gameReducer(
 ) {
 
   switch (action.type) {
+
+    case "update_status":
+      return {
+        ...state,
+        status:action.status,
+      }
     case "clean_up": {
       const flattenBoard = flattenDeep(state.board);
       const newTiles: TileMap = flattenBoard.reduce(
