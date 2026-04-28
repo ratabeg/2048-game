@@ -7,10 +7,11 @@ import { Tile as TileModel } from "@/models/tile";
 // import { mergeAnimationDuration } from "@/constants";
 // import { GameContext, dispatch, gameState } from "@/context/game-context";
 import dispatch,{ GameContext } from "@/context/game-context";
+import Splash from "./splash";
 
 
 const Board = () => {
-  const { moveTiles, getTiles,startGame } = useContext(GameContext);
+  const { moveTiles, getTiles,startGame,status } = useContext(GameContext);
   // const [gameState, dispatch] = useReducer(gameReducer, initialState);
   const initilized = useRef(false);
 
@@ -86,8 +87,10 @@ const Board = () => {
 
   return (
     <div className={styles.board}>
+      {status === "won" && <Splash heading = "You won!"/>}
       <div className={styles.tiles}>
         {/* <Tile /> */}
+        
         {renderTiles()}
       </div>
       <div className={styles.grid}>{renderGrid()}</div>
