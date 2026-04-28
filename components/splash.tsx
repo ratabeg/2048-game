@@ -17,6 +17,8 @@ export default function Splash({ heading = "You won!", type = "" }) {
         <Image src={TrophyPic} alt="Trophy" width={100} />
 
         <h1>{heading}</h1>
+        <Image src={TrophyPic} alt="Trophy" width={100}/>
+
         <button className={styles.button} onClick={startGame}>
           Play again
         </button>
